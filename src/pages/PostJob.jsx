@@ -6,14 +6,25 @@ const emptyForm = { title: '', company: '', location: '', type: 'Part-time', pay
 export default function PostJob({ onPost }) {
   const [form, setForm] = useState(emptyForm)
   const [posted, setPosted] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const update = (field) => (event) => setForm({ ...form, [field]: event.target.value })
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
-    onPost(form)
-    setForm(emptyForm)
-    setPosted(true)
+    setSaving(true)
+    setError('')
+    setPosted(false)
+    try {
+      await onPost(form)
+      setForm(emptyForm)
+      setPosted(true)
+    } catch {
+      setError('The job could not be saved. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -50,10 +61,12 @@ export default function PostJob({ onPost }) {
             Description
             <textarea rows={4} required value={form.description} onChange={update('description')} />
           </label>
-          <button className="button" type="submit">Post job</button>
+          <button className="button" type="submit" disabled={saving}>
+            {saving ? 'Posting...' : 'Post job'}
+          </button>
         </form>
         {posted && <p className="success">Job posted. It shows first on Find work.</p>}
-        <p className="note">Not saved yet: upgrade to keep posted jobs after a reload.</p>
+        {error && <p className="error">{error}</p>}
       </section>
     </main>
   )

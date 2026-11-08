@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { jobTypes } from '../data/jobs.js'
 
-export default function Home({ jobs, appliedIds, onApply }) {
+export default function Home({ jobs, jobsError, appliedIds, onApply }) {
   const [query, setQuery] = useState('')
   const [type, setType] = useState('All')
 
@@ -36,7 +36,8 @@ export default function Home({ jobs, appliedIds, onApply }) {
       </section>
 
       <section className="grid">
-        {shown.length === 0 && <p className="empty">No jobs match your search yet.</p>}
+        {jobsError && <p className="error">{jobsError}. Please refresh the page.</p>}
+        {shown.length === 0 && !jobsError && <p className="empty">No jobs match your search yet.</p>}
         {shown.map((job) => {
           const applied = appliedIds.includes(job.id)
           return (
